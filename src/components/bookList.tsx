@@ -19,7 +19,7 @@ const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
 
   const [userData, setUserData] = useState<Book[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+ 
 
   const indexOfLastBook = currentPage * booksPerPage;
   const indexOfFirstBook = indexOfLastBook - booksPerPage;
@@ -36,7 +36,7 @@ const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
       const jsonData = await response.data;
       setUserData(jsonData);
     } catch (error) {
-      setError("Error fetching data");
+      console.log("Error fetching books", error);
     }finally{
       setLoading(false);
     }
