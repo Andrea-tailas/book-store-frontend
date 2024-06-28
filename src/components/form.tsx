@@ -1,25 +1,18 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import "../App.css";
 import axios from "axios";
 import { Book } from "../alltypes";
 
-// Add a new prop `onBookAdded` for notifying the parent component
-const BookForm = ({ onBookAdded }: { onBookAdded: () => void }) => {
+const BookForm = () => {
   const titleRef = useRef<HTMLInputElement>(null);
   const authorRef = useRef<HTMLInputElement>(null);
   const yearRef = useRef<HTMLInputElement>(null);
 
   const [addBook, setAddBook] = useState<Book[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (addBook.length > 0) {
-      onBookAdded(); // Call the prop function when a new book is added
-    }
-  }, [addBook, onBookAdded]); // Depend on `addBook` and `onBookAdded` to re-run this effect
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false); // New state to control submission
 
   const handleSubmit = async () => {
-    setIsSubmitting(true);
+    setIsSubmitting(true); // Disable the button and prevent further submissions
 
     const title = titleRef.current!.value;
     const author = authorRef.current!.value;
@@ -38,6 +31,7 @@ const BookForm = ({ onBookAdded }: { onBookAdded: () => void }) => {
       );
       const jsonData = await response.data;
       setAddBook([...addBook, jsonData]);
+      // Optionally reset the form fields here if desired
       titleRef.current!.value = '';
       authorRef.current!.value = '';
       yearRef.current!.value = '';
@@ -49,7 +43,7 @@ const BookForm = ({ onBookAdded }: { onBookAdded: () => void }) => {
     } catch (error) {
       console.log("Error creating book", error);
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false); // Re-enable the button after submission
     }
   };
 
