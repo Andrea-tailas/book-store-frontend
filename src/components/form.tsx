@@ -1,34 +1,27 @@
 import { useRef } from "react";
 import "../App.css";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Book } from "../alltypes";
-import {reducer} from '../hooks/bookReducer'
-import {state} from '../alltypes'
-import {useReducer } from 'react'
-
-const initialstate: state = {
-  books: [],
-  searchquery: "",
-  currentpage: 1,
-  booksperpage: 5,
-};
-const [State, dispatch] = useReducer(reducer,initialstate)
-
 
 const BookForm = () => {
-  const [input, setInput] = useState({ title: "", author: "", year: "" });
-  const inputRef = useRef<HTMLInputElement>(null);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const authorRef = useRef<HTMLInputElement>(null);
+  const yearRef = useRef<HTMLInputElement>(null);
+
   const [addBook, setAddBook] = useState<Book[]>([]);
 
-  const handleSubmit = async () => {
-    if (!input.title.trim() || !input.author.trim() || !input.year.trim())
-      return;
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Prevent form from submitting and refreshing the page
+
+    const title = titleRef.current!.value;
+    const author = authorRef.current!.value;
+    const publicationYear = yearRef.current!.value;
 
     const book = {
-      title: input.title,
-      author: input.author,
-      publicationYear: input.year,
+      title,
+      author,
+      publicationYear,
     };
 
     try {
@@ -36,9 +29,6 @@ const BookForm = () => {
         "https://book-store-api-8rtp.onrender.com/api/book",
         book
       );
-      dispatch({ type: "CREATE_BOOK", payload: response.data });
-      setInput({ title: "", author: "", year: "" });
-      inputRef.current?.focus();
       const jsonData = await response.data;
       setAddBook([...addBook, jsonData]);
       if (response.status !== 201) {
@@ -50,40 +40,18 @@ const BookForm = () => {
       console.log("Error creating book", error);
     }
   };
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setInput((prev) => ({ ...prev, [name]: value }));
-  };
-
-  useEffect(() => {
-    handleSubmit();
-  }, [addBook]);
 
   return (
-    <form className="forminput">
+    <form className="forminput" onSubmit={(e) => e.preventDefault()}>
+      <input ref={titleRef} type="text" placeholder="Title" required />
+      <input ref={authorRef} type="text" placeholder="Author" required />
       <input
-        ref={inputRef}
-        type="text"
-        name="title"
-        value={input.title}
-        onChange={handleInputChange}
-        placeholder="Title"
-      />
-      <input
-        type="text"
-        name="author"
-        value={input.author}
-        onChange={handleInputChange}
-        placeholder="Author"
-      />
-      <input
+        ref={yearRef}
         type="number"
-        name="year"
-        value={input.year}
-        onChange={handleInputChange}
-        placeholder="Year"
+        placeholder="Publication Year"
+        required
       />
-      <button type="submit" className="addbtn" onClick={handleSubmit}>
+      <button type="button" className="addbtn" onClick={handleSubmit}>
         Add Book
       </button>
     </form>
