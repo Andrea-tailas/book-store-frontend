@@ -11,14 +11,15 @@ interface BookListProps {
 }
 
 
-const titleRef = useRef<HTMLInputElement>(null);
-  const authorRef = useRef<HTMLInputElement>(null);
-  const yearRef = useRef<HTMLInputElement>(null);
 
   const [addBook, setAddBook] = useState<Book[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
 const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
+  const titleRef = useRef<HTMLInputElement>(null);
+  const authorRef = useRef<HTMLInputElement>(null);
+  const yearRef = useRef<HTMLInputElement>(null);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [editBook, setEditBook] = useState<number>(0);
   const [editTitle, setEditTitle] = useState("");
@@ -107,7 +108,7 @@ const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
   //relender the page after delete and update
   useEffect(() => {
     getBooks();
-  }, [deleteData, updateData]);
+  }, [deleteData, updateData, addBook]);
 
   const handleUpdateBook = async (book: Book) => {
     setEditBook(book.id);
