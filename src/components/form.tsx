@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState ,useEffect} from "react";
 import "../App.css";
 import axios from "axios";
 import { Book } from "../alltypes";
@@ -10,6 +10,20 @@ const BookForm = () => {
 
   const [addBook, setAddBook] = useState<Book[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false); // New state to control submission
+
+  useEffect(() => {
+    // This function could be used to fetch and display books
+    const fetchBooks = async () => {
+      try {
+        const response = await axios.get("https://book-store-api-8rtp.onrender.com/api/books");
+        setAddBook(response.data);
+      } catch (error) {
+        console.error("Failed to fetch books", error);
+      }
+    };
+
+    fetchBooks();
+  }, [addBook.length]);
 
   const handleSubmit = async () => {
     setIsSubmitting(true); // Disable the button and prevent further submissions
