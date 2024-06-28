@@ -121,7 +121,7 @@ const bookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   };
 
   const [deleteData, setDeleteData] = useState<Book[]>([]);
-  const [updateData, setUpdateData] = useState<Book[]>([]);
+  // const [updateData, setUpdateData] = useState<Book[]>([]);
 
   const handleDeleteBook = async (id: number) => {
     const response = await axios.delete(
@@ -140,7 +140,7 @@ const bookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   //relender the page after delete and update
   useEffect(() => {
     getBooks();
-  }, [deleteData, updateData, addBook, searchItem,State.searchquery]);
+  }, [deleteData,  addBook, searchItem,State.searchquery]);
 
   const handleUpdateBook = async (book: Book) => {
     setEditBook(book.id);
@@ -168,42 +168,34 @@ const bookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   };
 
   const handleSaveEdit = async (id: number) => {
-    try {
-      const response = await axios.put(
-        `https://book-store-api-8rtp.onrender.com/api/book/${id}`,
-        {
-          title: editTitle,
-          author: editAuthor,
-          publicationYear: editPublicationYear,
+    const response = await axios.put(
+      `https://book-store-api-8rtp.onrender.com/api/book/${id}`,
+      {
+        title: editTitle,
+        author: editAuthor,
+        publicationYear: editPublicationYear,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
         },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
+      }
+    );
+    if (response.status === 201) {
+      console.log("Book updated successfully");
+      // Update userData with the updated book details
+      const updatedBooks = userData.map((book) => {
+        if (book.id === id) {
+          return { ...book, title: editTitle, author: editAuthor, publicationYear: editPublicationYear };
         }
-      );
-      const updatedBook = response.data; // Assuming this contains the updated book details
-      setUpdateData(updatedBook); // Assuming this is for tracking update status, not directly related to UI update
-  
-      // Update userData state with the updated book details
-      const updatedUserData = userData.map(book =>
-        book.id === id ? { ...book, title: editTitle, author: editAuthor, publicationYear: editPublicationYear } : book
-      );
-      setUserData(updatedUserData);
-  
-      // Assuming there's a state or context dispatch method for global state updates, if used
-      dispatch({
-        type: "UPDATE_BOOK",
-        payload: updatedBook,
+        return book;
       });
-  
-      setEditBook(0); // Assuming this resets the edit state
-    } catch (error) {
-      console.error("Error updating book:", error);
-      // Handle error appropriately
+      setUserData(updatedBooks);
+    } else {
+      console.log("Error updating book");
     }
   };
-  
+
 
   const handlePageChange = useCallback((Num: number) => {
     setCurrentPage(Num);
