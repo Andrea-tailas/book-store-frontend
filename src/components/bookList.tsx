@@ -34,7 +34,7 @@ const bookList: React.FC<BookListProps> = ({  booksPerPage }) => {
 
   const [userData, setUserData] = useState<Book[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
- 
+ const [searchItem,setSearchItem]= useState<boolean>(false)
 
   const indexOfLastBook = currentPage * booksPerPage;
   const indexOfFirstBook = indexOfLastBook - booksPerPage;
@@ -46,6 +46,7 @@ const bookList: React.FC<BookListProps> = ({  booksPerPage }) => {
 
 const handleSearch = useCallback((searchTerm: React.ChangeEvent<HTMLInputElement>) => {
   dispatch({ type: 'SEARCH_BOOK', payload: searchTerm.target.value })
+  setSearchItem(true)
 }, [dispatch])
 
 
@@ -121,7 +122,7 @@ const handleSearch = useCallback((searchTerm: React.ChangeEvent<HTMLInputElement
   //relender the page after delete and update
   useEffect(() => {
     getBooks();
-  }, [deleteData, updateData, addBook]);
+  }, [deleteData, updateData, addBook,searchItem]);
 
   const handleUpdateBook = async (book: Book) => {
     setEditBook(book.id);
