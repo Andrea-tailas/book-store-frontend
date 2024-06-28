@@ -1,16 +1,29 @@
 import "../App.css";
-import React, { useState, useCallback, useEffect ,useRef} from "react";
-import { ActionType } from "../alltypes";
+import React, { useState, useCallback, useEffect ,useRef,useReducer} from "react";
 import { Book } from "../alltypes";
+import {state} from "../alltypes"
+import {reducer} from "../hooks/bookReducer"
 
 import "../App.css";
 import axios from "axios";
 interface BookListProps {
-  dispatch: React.Dispatch<ActionType>;
   booksPerPage: number;
 }
 
-const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
+const initialstate: state = {
+  books: [],
+  searchquery: "",
+  currentpage: 1,
+  booksperpage: 5,
+};
+
+const [State, dispatch] = useReducer(reducer,initialstate)
+
+const handleSearch = useCallback((searchTerm: React.ChangeEvent<HTMLInputElement>) => {
+  dispatch({ type: 'SEARCH_BOOK', payload: searchTerm.target.value })
+}, [dispatch])
+
+const bookList: React.FC<BookListProps> = ({  booksPerPage }) => {
   const [addBook, setAddBook] = useState<Book[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -167,6 +180,9 @@ const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
 
   return (
     <div className="booklist">
+      <div className='search'>
+      <input type='text' placeholder='Enter book to search...' value={State.searchquery} onChange={handleSearch} title="text"/>
+      </div>
        <form className="forminput">
       <input ref={titleRef} type="text" placeholder="Title" required />
       <input ref={authorRef} type="text" placeholder="Author" required />
