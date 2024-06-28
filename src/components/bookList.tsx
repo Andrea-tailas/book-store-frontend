@@ -121,7 +121,7 @@ const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   };
 
   const [deleteData, setDeleteData] = useState<Book[]>([]);
-  const [updateData, setUpdateData] = useState<Book[]>([]);
+ 
 
   const handleDeleteBook = async (id: number) => {
     const response = await axios.delete(
@@ -140,7 +140,7 @@ const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   //relender the page after delete and update
   useEffect(() => {
     getBooks();
-  }, [deleteData, updateData, addBook, searchItem, State.searchquery]);
+  }, [deleteData,  addBook, searchItem, State.searchquery]);
 
   const handleUpdateBook = async (book: Book) => {
     setEditBook(book.id);
@@ -177,7 +177,7 @@ const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
     } else {
       console.log("Error updating book");
     }
-    setUpdateData(updateData)
+    
     setEditBook(0); // Reset edit state
   };
 
