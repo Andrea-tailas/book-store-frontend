@@ -45,7 +45,7 @@ const BookForm = () => {
   }, [addBook]);
 
   return (
-    <form onSubmit={handleSubmit} className="forminput">
+    <form  className="forminput">
       <input ref={titleRef} type="text" placeholder="Title" required />
       <input ref={authorRef} type="text" placeholder="Author" required />
       <input
@@ -54,7 +54,7 @@ const BookForm = () => {
         placeholder="Publication Year"
         required
       />
-      <button type="submit" className="addbtn">
+      <button type="submit" className="addbtn" onClick={handleSubmit}>
         Add Book
       </button>
     </form>
