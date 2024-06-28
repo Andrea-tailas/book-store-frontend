@@ -1,6 +1,6 @@
 import { useCallback,useReducer } from 'react'
 import './App.css'
-import Form from './components/form'
+// import Form from './components/form'
 import BookList from './components/bookList'
 // import useBooksReducer from './hooks/bookReducer'
 import {reducer} from './hooks/bookReducer'
@@ -32,7 +32,7 @@ function App() {
     <div className="bookApp">
       <h1>Book App</h1>
      <div>
-      <Form />
+      {/* <Form /> */}
       <div className='search'>
       <input type='text' placeholder='Enter book to search...' value={state.searchquery} onChange={handleSearch} title="text"/>
       </div>

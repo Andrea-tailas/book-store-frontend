@@ -1,5 +1,5 @@
 import "../App.css";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect ,useRef} from "react";
 import { ActionType } from "../alltypes";
 import { Book } from "../alltypes";
 
@@ -9,6 +9,14 @@ interface BookListProps {
   dispatch: React.Dispatch<ActionType>;
   booksPerPage: number;
 }
+
+
+const titleRef = useRef<HTMLInputElement>(null);
+  const authorRef = useRef<HTMLInputElement>(null);
+  const yearRef = useRef<HTMLInputElement>(null);
+
+  const [addBook, setAddBook] = useState<Book[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
 const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,6 +47,43 @@ const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
       console.log("Error fetching books", error);
     }finally{
       setLoading(false);
+    }
+  };
+
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true); // Disable the button and prevent further submissions
+
+    const title = titleRef.current!.value;
+    const author = authorRef.current!.value;
+    const publicationYear = yearRef.current!.value;
+
+    const book = {
+      title,
+      author,
+      publicationYear,
+    };
+
+    try {
+      const response = await axios.post(
+        "https://book-store-api-8rtp.onrender.com/api/book",
+        book
+      );
+      const jsonData = await response.data;
+      setAddBook([...addBook, jsonData]);
+      // Optionally reset the form fields here if desired
+      titleRef.current!.value = '';
+      authorRef.current!.value = '';
+      yearRef.current!.value = '';
+      if (response.status !== 201) {
+        console.log("Error creating book");
+      } else {
+        console.log("Book created successfully");
+      }
+    } catch (error) {
+      console.log("Error creating book", error);
+    } finally {
+      setIsSubmitting(false); // Re-enable the button after submission
     }
   };
 
@@ -125,6 +170,14 @@ const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
 
   return (
     <div className="booklist">
+       <form className="forminput">
+      <input ref={titleRef} type="text" placeholder="Title" required />
+      <input ref={authorRef} type="text" placeholder="Author" required />
+      <input ref={yearRef} type="number" placeholder="Publication Year" required />
+      <button type="button" className="addbtn" onClick={handleSubmit} disabled={isSubmitting}>
+        {isSubmitting ? 'Adding...' : 'Add Book'}
+      </button>
+    </form>
       <table border={1}>
         <tbody>
           <tr>
