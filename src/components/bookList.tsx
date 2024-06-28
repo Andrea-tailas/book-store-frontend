@@ -17,11 +17,6 @@ const initialstate: state = {
   booksperpage: 5,
 };
 
-const [State, dispatch] = useReducer(reducer,initialstate)
-
-const handleSearch = useCallback((searchTerm: React.ChangeEvent<HTMLInputElement>) => {
-  dispatch({ type: 'SEARCH_BOOK', payload: searchTerm.target.value })
-}, [dispatch])
 
 const bookList: React.FC<BookListProps> = ({  booksPerPage }) => {
   const [addBook, setAddBook] = useState<Book[]>([]);
@@ -46,6 +41,13 @@ const bookList: React.FC<BookListProps> = ({  booksPerPage }) => {
   const currentBooks =
     userData && userData.slice(indexOfFirstBook, indexOfLastBook);
   const totalPages = Math.ceil(userData && userData.length / booksPerPage);
+
+  const [State, dispatch] = useReducer(reducer,initialstate)
+
+const handleSearch = useCallback((searchTerm: React.ChangeEvent<HTMLInputElement>) => {
+  dispatch({ type: 'SEARCH_BOOK', payload: searchTerm.target.value })
+}, [dispatch])
+
 
   const getBooks = async () => {
     try {
