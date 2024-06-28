@@ -1,8 +1,14 @@
 import "../App.css";
-import React, { useState, useCallback, useEffect ,useRef,useReducer} from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useReducer,
+} from "react";
 import { Book } from "../alltypes";
-import {state} from "../alltypes"
-import {reducer} from "../hooks/bookReducer"
+import { state } from "../alltypes";
+import { reducer } from "../hooks/bookReducer";
 
 import "../App.css";
 import axios from "axios";
@@ -17,8 +23,7 @@ const initialstate: state = {
   booksperpage: 5,
 };
 
-
-const bookList: React.FC<BookListProps> = ({  booksPerPage }) => {
+const bookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   const [addBook, setAddBook] = useState<Book[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -34,7 +39,7 @@ const bookList: React.FC<BookListProps> = ({  booksPerPage }) => {
 
   const [userData, setUserData] = useState<Book[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
- const [searchItem,setSearchItem]= useState<boolean>(false)
+  const [searchItem, setSearchItem] = useState<boolean>(false);
 
   const indexOfLastBook = currentPage * booksPerPage;
   const indexOfFirstBook = indexOfLastBook - booksPerPage;
@@ -42,13 +47,15 @@ const bookList: React.FC<BookListProps> = ({  booksPerPage }) => {
     userData && userData.slice(indexOfFirstBook, indexOfLastBook);
   const totalPages = Math.ceil(userData && userData.length / booksPerPage);
 
-  const [State, dispatch] = useReducer(reducer,initialstate)
+  const [State, dispatch] = useReducer(reducer, initialstate);
 
-const handleSearch = useCallback((searchTerm: React.ChangeEvent<HTMLInputElement>) => {
-  dispatch({ type: 'SEARCH_BOOK', payload: searchTerm.target.value })
-  setSearchItem(true)
-}, [dispatch])
-
+  const handleSearch = useCallback(
+    (searchTerm: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch({ type: "SEARCH_BOOK", payload: searchTerm.target.value });
+      setSearchItem(true);
+    },
+    [dispatch]
+  );
 
   const getBooks = async () => {
     try {
@@ -56,15 +63,26 @@ const handleSearch = useCallback((searchTerm: React.ChangeEvent<HTMLInputElement
       const response = await axios.get(
         "https://book-store-api-8rtp.onrender.com/api/books"
       );
-      const jsonData = await response.data;
+      let jsonData = await response.data;
+
+      // Filter books if searchquery is not empty
+      if (State.searchquery.trim() !== "") {
+        jsonData = jsonData.filter(
+          (book: Book) =>
+            book.title
+              .toLowerCase()
+              .includes(State.searchquery.toLowerCase()) ||
+            book.author.toLowerCase().includes(State.searchquery.toLowerCase())
+        );
+      }
+
       setUserData(jsonData);
     } catch (error) {
       console.log("Error fetching books", error);
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
-
 
   const handleSubmit = async () => {
     setIsSubmitting(true); // Disable the button and prevent further submissions
@@ -87,9 +105,9 @@ const handleSearch = useCallback((searchTerm: React.ChangeEvent<HTMLInputElement
       const jsonData = await response.data;
       setAddBook([...addBook, jsonData]);
       // Optionally reset the form fields here if desired
-      titleRef.current!.value = '';
-      authorRef.current!.value = '';
-      yearRef.current!.value = '';
+      titleRef.current!.value = "";
+      authorRef.current!.value = "";
+      yearRef.current!.value = "";
       if (response.status !== 201) {
         console.log("Error creating book");
       } else {
@@ -122,7 +140,7 @@ const handleSearch = useCallback((searchTerm: React.ChangeEvent<HTMLInputElement
   //relender the page after delete and update
   useEffect(() => {
     getBooks();
-  }, [deleteData, updateData, addBook,searchItem]);
+  }, [deleteData, updateData, addBook, searchItem,State.searchquery]);
 
   const handleUpdateBook = async (book: Book) => {
     setEditBook(book.id);
@@ -183,17 +201,33 @@ const handleSearch = useCallback((searchTerm: React.ChangeEvent<HTMLInputElement
 
   return (
     <div className="booklist">
-      <div className='search'>
-      <input type='text' placeholder='Enter book to search...' value={State.searchquery} onChange={handleSearch} title="text"/>
+      <div className="search">
+        <input
+          type="text"
+          placeholder="Enter book to search..."
+          value={State.searchquery}
+          onChange={handleSearch}
+          title="text"
+        />
       </div>
-       <form className="forminput">
-      <input ref={titleRef} type="text" placeholder="Title" required />
-      <input ref={authorRef} type="text" placeholder="Author" required />
-      <input ref={yearRef} type="number" placeholder="Publication Year" required />
-      <button type="button" className="addbtn" onClick={handleSubmit} disabled={isSubmitting}>
-        {isSubmitting ? 'Adding...' : 'Add Book'}
-      </button>
-    </form>
+      <form className="forminput">
+        <input ref={titleRef} type="text" placeholder="Title" required />
+        <input ref={authorRef} type="text" placeholder="Author" required />
+        <input
+          ref={yearRef}
+          type="number"
+          placeholder="Publication Year"
+          required
+        />
+        <button
+          type="button"
+          className="addbtn"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Adding..." : "Add Book"}
+        </button>
+      </form>
       <table border={1}>
         <tbody>
           <tr>
@@ -204,8 +238,8 @@ const handleSearch = useCallback((searchTerm: React.ChangeEvent<HTMLInputElement
           </tr>
           {loading && (
             <tr className="loadingtd">
-            <td className="loading">Loading... 🔄</td>
-          </tr>
+              <td className="loading">Loading... 🔄</td>
+            </tr>
           )}
           {currentBooks &&
             currentBooks.map((filterBooks) => (
