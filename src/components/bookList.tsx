@@ -168,32 +168,42 @@ const bookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   };
 
   const handleSaveEdit = async (id: number) => {
-    const response = await axios.put(
-      `https://book-store-api-8rtp.onrender.com/api/book/${id}`,
-      {
-        title: editTitle,
-        author: editAuthor,
-        publicationYear: editPublicationYear,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      const response = await axios.put(
+        `https://book-store-api-8rtp.onrender.com/api/book/${id}`,
+        {
+          title: editTitle,
+          author: editAuthor,
+          publicationYear: editPublicationYear,
         },
-      }
-    );
-    const jsonData = await response.data;
-    setUpdateData(jsonData);
-    dispatch({
-      type: "UPDATE_BOOK",
-      payload: {
-        id,
-        title: editTitle,
-        author: editAuthor,
-        publicationYear: editPublicationYear,
-      },
-    });
-    setEditBook(0);
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const updatedBook = response.data; // Assuming this contains the updated book details
+      setUpdateData(updatedBook); // Assuming this is for tracking update status, not directly related to UI update
+  
+      // Update userData state with the updated book details
+      const updatedUserData = userData.map(book =>
+        book.id === id ? { ...book, title: editTitle, author: editAuthor, publicationYear: editPublicationYear } : book
+      );
+      setUserData(updatedUserData);
+  
+      // Assuming there's a state or context dispatch method for global state updates, if used
+      dispatch({
+        type: "UPDATE_BOOK",
+        payload: updatedBook,
+      });
+  
+      setEditBook(0); // Assuming this resets the edit state
+    } catch (error) {
+      console.error("Error updating book:", error);
+      // Handle error appropriately
+    }
   };
+  
 
   const handlePageChange = useCallback((Num: number) => {
     setCurrentPage(Num);
