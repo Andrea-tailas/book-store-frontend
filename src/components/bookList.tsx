@@ -121,7 +121,7 @@ const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   };
 
   const [deleteData, setDeleteData] = useState<Book[]>([]);
- 
+  const [updateData, setUpdateData] = useState<Book[]>([]);
 
   const handleDeleteBook = async (id: number) => {
     const response = await axios.delete(
@@ -140,7 +140,7 @@ const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   //relender the page after delete and update
   useEffect(() => {
     getBooks();
-  }, [deleteData,  addBook, searchItem, State.searchquery]);
+  }, [deleteData, updateData, addBook, searchItem, State.searchquery]);
 
   const handleUpdateBook = async (book: Book) => {
     setEditBook(book.id);
@@ -163,22 +163,19 @@ const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
         },
       }
     );
-    if (response.status === 200) { // Assuming 200 is the success status code for updates
-      const updatedBook = response.data;
-      // Update the book in userData without altering the order
-      const updatedBooks = userData.map(book => {
-        if (book.id === id) {
-          return { ...book, ...updatedBook };
-        }
-        return book;
-      });
-      setUserData(updatedBooks);
-      console.log("Book updated successfully");
-    } else {
-      console.log("Error updating book");
-    }
-    
-    setEditBook(0); // Reset edit state
+    const updatedBook = await response.data;
+    setUpdateData([...updateData, updatedBook]);
+    dispatch({
+      type: "UPDATE_BOOK",
+      payload: {
+        id,
+        title: editTitle,
+        author: editAuthor,
+        publicationYear: editPublicationYear,
+      },
+    });
+    setEditBook(0);
+    setUserData(updatedBook)
   };
 
   const handlePageChange = useCallback((Num: number) => {
