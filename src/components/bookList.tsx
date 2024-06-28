@@ -23,7 +23,7 @@ const initialstate: state = {
   booksperpage: 5,
 };
 
-const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
+const bookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   const [addBook, setAddBook] = useState<Book[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -140,13 +140,31 @@ const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   //relender the page after delete and update
   useEffect(() => {
     getBooks();
-  }, [deleteData, updateData, addBook, searchItem, State.searchquery]);
+  }, [deleteData, updateData, addBook, searchItem,State.searchquery]);
 
   const handleUpdateBook = async (book: Book) => {
     setEditBook(book.id);
     setEditTitle(book.title);
     setEditAuthor(book.author);
     setEditPublicationYear(book.publicationYear);
+    const response = await axios.put(
+      `https://book-store-api-8rtp.onrender.com/api/book/${book.id}`,
+      {
+        title: editTitle,
+        author: editAuthor,
+        publicationYear: editPublicationYear,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.status !== 201) {
+      console.log("Error updating book");
+    } else {
+      console.log("Book updated successfully");
+    }
   };
 
   const handleSaveEdit = async (id: number) => {
@@ -163,8 +181,8 @@ const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
         },
       }
     );
-    const updatedBook = await response.data;
-    setUpdateData([...updateData, updatedBook]);
+    const jsonData = await response.data;
+    setUpdateData(jsonData);
     dispatch({
       type: "UPDATE_BOOK",
       payload: {
@@ -175,7 +193,6 @@ const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
       },
     });
     setEditBook(0);
-    setUserData(updatedBook)
   };
 
   const handlePageChange = useCallback((Num: number) => {
@@ -310,4 +327,4 @@ const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   );
 };
 
-export default BookList;
+export default bookList;
