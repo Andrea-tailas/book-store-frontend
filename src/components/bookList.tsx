@@ -10,10 +10,6 @@ interface BookListProps {
   booksPerPage: number;
 }
 
-
-
-
-
 const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
   const [addBook, setAddBook] = useState<Book[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -130,8 +126,6 @@ const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
         },
       }
     );
-    const jsonData = await response.data;
-    setUpdateData(jsonData);
     if (response.status !== 201) {
       console.log("Error updating book");
     } else {
