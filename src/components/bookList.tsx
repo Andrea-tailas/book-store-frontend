@@ -163,18 +163,22 @@ const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
         },
       }
     );
-    const updatedBook = await response.data;
-    setUpdateData([...updateData, updatedBook]);
-    dispatch({
-      type: "UPDATE_BOOK",
-      payload: {
-        id,
-        title: editTitle,
-        author: editAuthor,
-        publicationYear: editPublicationYear,
-      },
-    });
-    setEditBook(0);
+    if (response.status === 200) { // Assuming 200 is the success status code for updates
+      const updatedBook = response.data;
+      // Update the book in userData without altering the order
+      const updatedBooks = userData.map(book => {
+        if (book.id === id) {
+          return { ...book, ...updatedBook };
+        }
+        return book;
+      });
+      setUserData(updatedBooks);
+      console.log("Book updated successfully");
+    } else {
+      console.log("Error updating book");
+    }
+    setUpdateData(updateData)
+    setEditBook(0); // Reset edit state
   };
 
   const handlePageChange = useCallback((Num: number) => {
