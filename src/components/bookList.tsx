@@ -12,10 +12,12 @@ interface BookListProps {
 
 
 
+
+
+const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
   const [addBook, setAddBook] = useState<Book[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-const bookList: React.FC<BookListProps> = ({ dispatch, booksPerPage }) => {
   const titleRef = useRef<HTMLInputElement>(null);
   const authorRef = useRef<HTMLInputElement>(null);
   const yearRef = useRef<HTMLInputElement>(null);
