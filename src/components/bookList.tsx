@@ -23,7 +23,7 @@ const initialstate: state = {
   booksperpage: 5,
 };
 
-const bookList: React.FC<BookListProps> = ({ booksPerPage }) => {
+const BookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   const [addBook, setAddBook] = useState<Book[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -121,7 +121,7 @@ const bookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   };
 
   const [deleteData, setDeleteData] = useState<Book[]>([]);
-  // const [updateData, setUpdateData] = useState<Book[]>([]);
+  const [updateData, setUpdateData] = useState<Book[]>([]);
 
   const handleDeleteBook = async (id: number) => {
     const response = await axios.delete(
@@ -140,31 +140,13 @@ const bookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   //relender the page after delete and update
   useEffect(() => {
     getBooks();
-  }, [deleteData,  addBook, searchItem,State.searchquery]);
+  }, [deleteData, updateData, addBook, searchItem, State.searchquery]);
 
   const handleUpdateBook = async (book: Book) => {
     setEditBook(book.id);
     setEditTitle(book.title);
     setEditAuthor(book.author);
     setEditPublicationYear(book.publicationYear);
-    const response = await axios.put(
-      `https://book-store-api-8rtp.onrender.com/api/book/${book.id}`,
-      {
-        title: editTitle,
-        author: editAuthor,
-        publicationYear: editPublicationYear,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (response.status !== 201) {
-      console.log("Error updating book");
-    } else {
-      console.log("Book updated successfully");
-    }
   };
 
   const handleSaveEdit = async (id: number) => {
@@ -181,21 +163,19 @@ const bookList: React.FC<BookListProps> = ({ booksPerPage }) => {
         },
       }
     );
-    if (response.status === 201) {
-      console.log("Book updated successfully");
-      // Update userData with the updated book details
-      const updatedBooks = userData.map((book) => {
-        if (book.id === id) {
-          return { ...book, title: editTitle, author: editAuthor, publicationYear: editPublicationYear };
-        }
-        return book;
-      });
-      setUserData(updatedBooks);
-    } else {
-      console.log("Error updating book");
-    }
+    const updatedBook = await response.data;
+    setUpdateData([...updateData, updatedBook]);
+    dispatch({
+      type: "UPDATE_BOOK",
+      payload: {
+        id,
+        title: editTitle,
+        author: editAuthor,
+        publicationYear: editPublicationYear,
+      },
+    });
+    setEditBook(0);
   };
-
 
   const handlePageChange = useCallback((Num: number) => {
     setCurrentPage(Num);
@@ -329,4 +309,4 @@ const bookList: React.FC<BookListProps> = ({ booksPerPage }) => {
   );
 };
 
-export default bookList;
+export default BookList;
