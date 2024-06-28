@@ -1,18 +1,25 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import "../App.css";
 import axios from "axios";
-import { useState } from "react";
 import { Book } from "../alltypes";
 
-const BookForm = () => {
+// Add a new prop `onBookAdded` for notifying the parent component
+const BookForm = ({ onBookAdded }: { onBookAdded: () => void }) => {
   const titleRef = useRef<HTMLInputElement>(null);
   const authorRef = useRef<HTMLInputElement>(null);
   const yearRef = useRef<HTMLInputElement>(null);
 
   const [addBook, setAddBook] = useState<Book[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // Prevent form from submitting and refreshing the page
+  useEffect(() => {
+    if (addBook.length > 0) {
+      onBookAdded(); // Call the prop function when a new book is added
+    }
+  }, [addBook, onBookAdded]); // Depend on `addBook` and `onBookAdded` to re-run this effect
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
 
     const title = titleRef.current!.value;
     const author = authorRef.current!.value;
@@ -31,6 +38,9 @@ const BookForm = () => {
       );
       const jsonData = await response.data;
       setAddBook([...addBook, jsonData]);
+      titleRef.current!.value = '';
+      authorRef.current!.value = '';
+      yearRef.current!.value = '';
       if (response.status !== 201) {
         console.log("Error creating book");
       } else {
@@ -38,21 +48,18 @@ const BookForm = () => {
       }
     } catch (error) {
       console.log("Error creating book", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <form className="forminput" onSubmit={(e) => e.preventDefault()}>
+    <form className="forminput">
       <input ref={titleRef} type="text" placeholder="Title" required />
       <input ref={authorRef} type="text" placeholder="Author" required />
-      <input
-        ref={yearRef}
-        type="number"
-        placeholder="Publication Year"
-        required
-      />
-      <button type="button" className="addbtn" onClick={handleSubmit}>
-        Add Book
+      <input ref={yearRef} type="number" placeholder="Publication Year" required />
+      <button type="button" className="addbtn" onClick={handleSubmit} disabled={isSubmitting}>
+        {isSubmitting ? 'Adding...' : 'Add Book'}
       </button>
     </form>
   );
